@@ -9,18 +9,10 @@
 #define NUM_CHARS    16
 
 
-void   hexdump    (char* prog_name, char * filename);
+void   hexdump(char* prog_name, char * filename);
 
 /* Clear the display line.  */
 void   clear_line (char *line, int size);
-
-/* Put a character (in hex format
-             * into the display line. */
-char * hex   (char *position, int c);
-
-/* Put a character (in ASCII format
-             * into the display line. */
-char * ascii (char *position, int c);
 
 
 int main(int argc, char * argv[])
@@ -42,12 +34,12 @@ int main(int argc, char * argv[])
 
 void hexdump(char* prog_name, char * filename)
 {
-    int c=' ';                    /* Character read from the file */
+    int c=' ';      /* Character read from the file */
 
-    char * hex_offset;     /* Position of the next character
+    char *hex_position;     /* Position of the next character
                                                  * in Hex     */
 
-    char * ascii_offset;      /* Position of the next character
+    char *ascii_position;      /* Position of the next character
                                                        * in ASCII.      */
 
     FILE *ptr;                       /* Pointer to the file.   */
@@ -67,21 +59,27 @@ void hexdump(char* prog_name, char * filename)
     while (c != EOF )
     {
         clear_line(line, sizeof line);
-        hex_offset   = line+HEX_OFFSET;
-        ascii_offset = line+ASCII_OFFSET;
+        hex_position   = line+HEX_OFFSET;
+        ascii_position = line+ASCII_OFFSET;
 
-        while ( ascii_offset < line+ASCII_OFFSET+NUM_CHARS
+        while ( ascii_position < line+ASCII_OFFSET+NUM_CHARS
                 &&(c = fgetc(ptr)) != EOF  )
         {
-            /* Build the hex part of
-             * the line.      */
-            hex_offset = hex(hex_offset, c);
+            const int shift=3;
+            unsigned char print_c;
 
-            /* Build the Ascii part of
-             * the line.      */
-            ascii_offset = ascii(ascii_offset, c);
+            sprintf(hex_position, "%02X ", (unsigned char) c); // put hex representation int the line
+            hex_position = hex_position + shift;
+
+
+            // If the character is NOT printable replace it with a '.'
+            if (isprint(c)) print_c = c;
+            else print_c = '.';
+            sprintf(ascii_position++, "%c", print_c);    // Put the character to the line
+                                                   // so it can be displayed later
 
         }
+        *hex_position = ' '; // remove /0 added by sprintf
         printf("%s\n", line);
     }
 
@@ -95,27 +93,3 @@ void clear_line(char *line, int size)
     for  (count=0; count < size; line[count]=' ', count++);
 }
 
-char * ascii(char *position, int c)
-{
-    /* If the character is NOT printable
-     * replace it with a '.'  */
-    if (!isprint(c)) c='.';
-
-    sprintf(position, "%c", c);    /* Put the character to the line
-                                    * so it can be displayed later */
-
-    /* Return the position of the next
-     * ASCII character.   */
-    return(++position);
-}
-
-char * hex(char *position, int c)
-{
-    int offset=3;
-
-    sprintf(position, "%02X ", (unsigned char) c);
-
-    *(position+offset)=' ';   /* Remove the '/0' created by 'sprint'  */
-
-    return (position+offset);
-}

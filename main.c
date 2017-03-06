@@ -58,13 +58,13 @@ void hexdump(char* prog_name, char * filename)
 
 int output_line(FILE *fileptr)
 {
-    char line[81];        /* O/P line.      */
+    static char line[81];        /* O/P line.      */
     int c=' ';      /* Character read from the file */
 
-    char *hex_position;     /* Position of the next character
+    static char *hex_position;     /* Position of the next character
                                                  * in Hex     */
 
-    char *ascii_position;      /* Position of the next character
+    static char *ascii_position;      /* Position of the next character
                                                        * in ASCII.      */
     clear_line(line, sizeof line);
     hex_position   = line+HEX_OFFSET;
@@ -72,8 +72,8 @@ int output_line(FILE *fileptr)
 
     while ( ascii_position < line+ASCII_OFFSET+NUM_CHARS && (c = fgetc(fileptr)) != EOF  )
     {
-        const int shift=3;
-        unsigned char print_c;
+        static const int shift=3;
+        static unsigned char print_c;
 
         sprintf(hex_position, "%02X ", (unsigned char) c); // put hex representation int the line
         hex_position = hex_position + shift;

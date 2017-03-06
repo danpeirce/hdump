@@ -10,6 +10,7 @@
 
 
 void   hexdump(char* prog_name, char * filename);
+int output_line(FILE *fileptr);
 
 /* Clear the display line.  */
 void   clear_line (char *line, int size);
@@ -34,21 +35,12 @@ int main(int argc, char * argv[])
 
 void hexdump(char* prog_name, char * filename)
 {
+    FILE *fptr;      /* Pointer to the file.   */
     int c=' ';      /* Character read from the file */
 
-    char *hex_position;     /* Position of the next character
-                                                 * in Hex     */
-
-    char *ascii_position;      /* Position of the next character
-                                                       * in ASCII.      */
-
-    FILE *ptr;                       /* Pointer to the file.   */
-
-    char line[81];        /* O/P line.      */
-
     /* Open the file    */
-    ptr = fopen(filename,"r");
-    if ( ferror(ptr) )
+    fptr = fopen(filename,"r");
+    if ( ferror(fptr) )
     {
         printf("\n\t%s: Unable to open %s\n\n", prog_name, filename);
         exit(0);
@@ -58,12 +50,28 @@ void hexdump(char* prog_name, char * filename)
 
     while (c != EOF )
     {
+        c = output_line(fptr);
+    }
+
+    fclose(fptr);
+}
+
+int output_line(FILE *fileptr)
+{
+    char line[81];        /* O/P line.      */
+    int c=' ';      /* Character read from the file */
+
+    char *hex_position;     /* Position of the next character
+                                                 * in Hex     */
+
+    char *ascii_position;      /* Position of the next character
+                                                       * in ASCII.      */
         clear_line(line, sizeof line);
         hex_position   = line+HEX_OFFSET;
         ascii_position = line+ASCII_OFFSET;
 
         while ( ascii_position < line+ASCII_OFFSET+NUM_CHARS
-                &&(c = fgetc(ptr)) != EOF  )
+                &&(c = fgetc(fileptr)) != EOF  )
         {
             const int shift=3;
             unsigned char print_c;
@@ -81,10 +89,10 @@ void hexdump(char* prog_name, char * filename)
         }
         *hex_position = ' '; // remove /0 added by sprintf
         printf("%s\n", line);
-    }
 
-    fclose(ptr);
+        return c;
 }
+
 
 void clear_line(char *line, int size)
 {

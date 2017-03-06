@@ -66,31 +66,30 @@ int output_line(FILE *fileptr)
 
     char *ascii_position;      /* Position of the next character
                                                        * in ASCII.      */
-        clear_line(line, sizeof line);
-        hex_position   = line+HEX_OFFSET;
-        ascii_position = line+ASCII_OFFSET;
+    clear_line(line, sizeof line);
+    hex_position   = line+HEX_OFFSET;
+    ascii_position = line+ASCII_OFFSET;
 
-        while ( ascii_position < line+ASCII_OFFSET+NUM_CHARS
-                &&(c = fgetc(fileptr)) != EOF  )
-        {
-            const int shift=3;
-            unsigned char print_c;
+    while ( ascii_position < line+ASCII_OFFSET+NUM_CHARS && (c = fgetc(fileptr)) != EOF  )
+    {
+        const int shift=3;
+        unsigned char print_c;
 
-            sprintf(hex_position, "%02X ", (unsigned char) c); // put hex representation int the line
-            hex_position = hex_position + shift;
+        sprintf(hex_position, "%02X ", (unsigned char) c); // put hex representation int the line
+        hex_position = hex_position + shift;
 
 
-            // If the character is NOT printable replace it with a '.'
-            if (isprint(c)) print_c = c;
-            else print_c = '.';
-            sprintf(ascii_position++, "%c", print_c);    // Put the character to the line
-                                                   // so it can be displayed later
+        // If the character is NOT printable replace it with a '.'
+        if (isprint(c)) print_c = c;
+        else print_c = '.';
+        sprintf(ascii_position++, "%c", print_c);    // Put the character to the line
+                                               // so it can be displayed later
 
-        }
-        *hex_position = ' '; // remove /0 added by sprintf
-        printf("%s\n", line);
+    }
+    *hex_position = ' '; // remove /0 added by sprintf
+    printf("%s\n", line);
 
-        return c;
+    return c;
 }
 
 
